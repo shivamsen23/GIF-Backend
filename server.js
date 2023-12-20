@@ -18,10 +18,10 @@ app.use(express.json());
 app.use(cors());
 
 
-app.get('/', (req, res) => {
- res.send('page.js');
-});
+app.get("/",function(req, res){
 
+    res.render("layout", {title:"home-page"})
+})
 
 // MongoDB Connection Database
 const uri = "mongodb+srv://senshivam838:rimpasen@cluster0.50bjghz.mongodb.net/";
