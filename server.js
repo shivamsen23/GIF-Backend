@@ -10,21 +10,17 @@ import path from 'path'; // Import the path module
 import { fileURLToPath } from 'url'; // Import fileURLToPath
 import { dirname } from 'path'; // Import dirname
 
-//import page1 from "../src/app/page"; // You may need to adjust this import path
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 // Use fileURLToPath and dirname to get __dirname in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 app.use(express.json());
 app.use(cors());
 
-app.use('/static', express.static(path.join(__dirname, '../src/app')));
 
 app.get('/', (req, res) => {
-res.render('/');
-});
+ res.send('page.js');
+}););
 
 
 // MongoDB Connection Database
