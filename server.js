@@ -1,19 +1,33 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+import express from 'express';
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 const secretKey = crypto.randomBytes(32).toString('hex');
 console.log('Generated Secret Key:', secretKey);
+import path from 'path'; // Import the path module
+import { fileURLToPath } from 'url'; // Import fileURLToPath
+import { dirname } from 'path'; // Import dirname
+
+//import page1 from "../src/app/page"; // You may need to adjust this import path
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+// Use fileURLToPath and dirname to get __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 app.use(express.json());
 app.use(cors());
 
-//mongodb Connection Database
+app.use('/static', express.static(path.join(__dirname, '../src/app')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../src/app/page1'));
+});
+
+
+// MongoDB Connection Database
 const uri = "mongodb+srv://senshivam838:rimpasen@cluster0.50bjghz.mongodb.net/";
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -43,33 +57,30 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-
 // Login endpoint
 app.post('/api/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      const user = await User.findOne({ email });
-  
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-  
-      const token = jwt.sign({ userId: user._id }, secretKey , { expiresIn: '1h' });
-  
-      res.json({ token });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-  // Logout endpoint
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+
+    res.json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Logout endpoint
 app.post('/api/logout', (req, res) => {
-    res.json({ message: 'Logout successful' });
-  });
-  
-  
+  res.json({ message: 'Logout successful' });
+});
+
 app.listen(PORT, () => {
   console.log('Server is listening on port', PORT);
 });
